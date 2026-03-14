@@ -16,7 +16,9 @@ export function createNode(type, x, y) {
         ports: getInitialPorts(type), 
         usedPorts: [], 
         status: 'stopped',
-        customIcon: null
+        customIcon: null,
+        cpu: type === 'server' ? 4 : 2, // Default CPU cores
+        ram: type === 'server' ? 8 : 4  // Default RAM GB
     };
     state.nodes.push(node); 
     renderNode(node); 
@@ -61,6 +63,8 @@ export function renderNode(node) {
         clearSelections(); 
         nodeEl.classList.add('selected');
         renderProperties(node.id);
+        const propertiesTab = document.querySelector('.sidebar-tab[data-tab="properties"]');
+        if (propertiesTab) propertiesTab.click();
         document.addEventListener('mousemove', onMouseMove); 
         document.addEventListener('mouseup', onMouseUp);
     });

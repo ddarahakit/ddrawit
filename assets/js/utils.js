@@ -3,6 +3,7 @@ export function getInitialPorts(type) {
         router: ['eth0', 'eth1', 'eth2', 'eth3'], 
         switch: Array.from({length: 8}, (_, i) => `p${i+1}`), 
         server: ['eth0'], 
+        loadbalancer: ['eth0', 'eth1'],
         pc: ['eth0'], 
         cloud: ['link'] 
     };
@@ -14,6 +15,7 @@ export function getIconClass(type) {
         router: 'fa-solid fa-route', 
         switch: 'fa-solid fa-network-wired', 
         server: 'fa-solid fa-server', 
+        loadbalancer: 'fa-solid fa-bridge',
         pc: 'fa-solid fa-desktop', 
         cloud: 'fa-solid fa-cloud' 
     };

@@ -3,7 +3,9 @@ import {
     workspace, canvasWrapper, nodeLayer, drawingLayer, 
     contextMenu, shapeProps, propColor, propOpacity, 
     portModal, serverAppPortInput, btnConfirmServerPort,
-    btnLinkTool, toolButtons, zoomLabel
+    btnLinkTool, toolButtons, zoomLabel,
+    simulationModal, simTotalRps, simLbAlgo, simSpecTable,
+    simSpecTbody, simNoRoles, simStartBtn, simCancelBtn, btnSimulate
 } from './dom.js';
 import { createNode } from './node.js';
 import { createDrawing } from './drawing.js';
@@ -39,6 +41,25 @@ workspace.addEventListener('mousemove', (e) => {
     }
 });
 
+// --- Tab Logic ---
+
+document.querySelectorAll('.sidebar-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(`tab-${target}`).classList.add('active');
+    });
+});
+
+function switchToTab(tabName) {
+    const tab = document.querySelector(`.sidebar-tab[data-tab="${tabName}"]`);
+    if (tab) tab.click();
+}
+
+// Update existing listeners to switch tabs
 workspace.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
     if (e.target !== workspace && e.target !== canvasWrapper && e.target !== nodeLayer && e.target !== drawingLayer) return;
@@ -61,6 +82,60 @@ Object.keys(toolButtons).forEach(tool => {
     }
 });
 
+// --- Simulation Logic ---
+
+btnSimulate.addEventListener('click', () => {
+    const servers = state.nodes.filter(n => n.type === 'server');
+    simSpecTbody.innerHTML = '';
+    
+    if (servers.length === 0) {
+        simSpecTable.style.display = 'none';
+        simNoRoles.style.display = 'block';
+    } else {
+        simSpecTable.style.display = 'table';
+        simNoRoles.style.display = 'none';
+        servers.forEach(srv => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${srv.label}">${srv.label}</td>
+                <td>Server</td>
+                <td><input type="number" min="1" max="128" value="${srv.cpu || 4}" data-id="${srv.id}" class="sim-cpu-input"></td>
+                <td><input type="number" min="1" value="${srv.ram || 8}" data-id="${srv.id}" class="sim-ram-input"></td>
+            `;
+            simSpecTbody.appendChild(tr);
+        });
+    }
+    
+    simulationModal.style.display = 'flex';
+});
+
+simStartBtn.onclick = () => {
+    // Update server specs from table
+    document.querySelectorAll('.sim-cpu-input').forEach(input => {
+        const id = input.dataset.id;
+        const node = state.nodes.find(n => n.id === id);
+        if (node) node.cpu = parseInt(input.value);
+    });
+    document.querySelectorAll('.sim-ram-input').forEach(input => {
+        const id = input.dataset.id;
+        const node = state.nodes.find(n => n.id === id);
+        if (node) node.ram = parseInt(input.value);
+    });
+
+    state.isSimulating = true;
+    const rps = parseInt(simTotalRps.value);
+    state.simulationLoad = Math.min(100, Math.round((rps / 5000) * 100)); 
+    
+    simulationModal.style.display = 'none';
+    renderAll();
+};
+
+simCancelBtn.onclick = () => {
+    simulationModal.style.display = 'none';
+};
+
+// --- Link Tool ---
+
 btnLinkTool.addEventListener('click', (e) => {
     e.stopPropagation();
     state.isDrawingLink = !state.isDrawingLink;
@@ -79,19 +154,48 @@ document.getElementById('btn-zoom-in').onclick = () => updateZoom(0.1);
 document.getElementById('btn-zoom-out').onclick = () => updateZoom(-0.1);
 document.getElementById('btn-zoom-reset').onclick = () => { state.zoom = 1.0; applyZoom(); };
 
+// --- Save & Load Logic ---
+
 document.getElementById('btn-save').onclick = () => {
-    localStorage.setItem('varch_designer_save', JSON.stringify({ nodes: state.nodes, links: state.links, drawings: state.drawings }));
-    alert('Project saved!');
+    const data = {
+        nodes: state.nodes,
+        links: state.links,
+        drawings: state.drawings,
+        version: '3.7'
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `architecture-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
 };
 
 document.getElementById('btn-load').onclick = () => {
-    const data = JSON.parse(localStorage.getItem('varch_designer_save'));
-    if (data) { 
-        state.nodes = data.nodes || []; 
-        state.links = data.links || []; 
-        state.drawings = data.drawings || []; 
-        renderAll(); 
-    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+            try {
+                const data = JSON.parse(re.target.result);
+                state.nodes = data.nodes || [];
+                state.links = data.links || [];
+                state.drawings = data.drawings || [];
+                renderAll();
+                renderProperties(null);
+                alert('Project loaded successfully!');
+            } catch (err) {
+                alert('Failed to load file: Invalid JSON structure.');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 };
 
 document.getElementById('btn-clear-canvas').onclick = () => { 

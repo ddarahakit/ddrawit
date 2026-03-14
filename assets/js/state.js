@@ -10,7 +10,9 @@ export const state = {
     dragType: 'node',
     resizeDir: '',
     offset: { x: 0, y: 0, w: 0, h: 0, startX: 0, startY: 0 },
-    contextTargetId: null
+    contextTargetId: null,
+    isSimulating: false,
+    simulationLoad: 50 // Default load percentage
 };
 
 export const pendingLink = { sourceId: null, targetId: null, sourcePort: null };

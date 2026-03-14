@@ -19,6 +19,15 @@ export const propertyEditor = document.getElementById('property-editor');
 export const deviceCount = document.getElementById('device-count');
 export const btnLinkTool = document.getElementById('btn-link-tool');
 export const zoomLabel = document.getElementById('zoom-label');
+export const simulationModal = document.getElementById('simulation-modal');
+export const simTotalRps = document.getElementById('sim-total-rps');
+export const simLbAlgo = document.getElementById('sim-lb-algo');
+export const simSpecTable = document.getElementById('sim-spec-table');
+export const simSpecTbody = document.getElementById('sim-spec-tbody');
+export const simNoRoles = document.getElementById('sim-no-roles');
+export const simStartBtn = document.getElementById('sim-start-btn');
+export const simCancelBtn = document.getElementById('sim-cancel-btn');
+export const btnSimulate = document.getElementById('btn-simulate');
 
 export const toolButtons = {
     select: document.getElementById('tool-select'),

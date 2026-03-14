@@ -261,6 +261,44 @@ body, html {
     stroke-dasharray: 4;
 }
 
+@keyframes dash-flow {
+    to {
+        stroke-dashoffset: -24;
+    }
+}
+
+@keyframes particle-flow {
+    from {
+        offset-distance: 0%;
+    }
+    to {
+        offset-distance: 100%;
+    }
+}
+
+.simulating-link {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
+}
+
+.load-particle {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+    stroke: #334155;
+    stroke-width: 1px;
+}
+
+.traffic-label {
+    font-size: 11px;
+    font-weight: 800;
+    fill: #2563eb;
+    pointer-events: none;
+    user-select: none;
+    paint-order: stroke;
+    stroke: white;
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 .port-label {
     font-size: 10px;
     fill: #334155;
@@ -523,6 +561,31 @@ body, html {
     flex-direction: column;
 }
 
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content, .sim-modal-box {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
 .context-menu {
     position: fixed;
     background: white;
@@ -706,9 +769,115 @@ body, html {
     border-color: var(--primary-color);
 }
 
-/* Inventory Sidebar (Right - Split) */
+/* Simulation Modal New Styles */
+.sim-modal-box {
+    width: 100%;
+    max-width: 500px;
+}
+
+.sim-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.sim-modal-row {
+    margin-bottom: 15px;
+}
+
+.sim-modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.sim-modal-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.sim-modal-input:focus {
+    border-color: var(--primary-color);
+}
+
+.sim-spec-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.sim-spec-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.sim-spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.sim-spec-table th {
+    text-align: left;
+    padding: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sim-spec-table td {
+    padding: 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.sim-spec-table input {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.sim-modal-actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+}
+
+.sim-modal-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background: white;
+    transition: all 0.2s;
+}
+
+.sim-modal-btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.sim-modal-btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+/* Inventory Sidebar (Right - Tabbed) */
 .inventory-sidebar {
-    width: 300px;
+    width: 350px;
     background-color: var(--sidebar-bg);
     border-left: 1px solid var(--border-color);
     display: flex;
@@ -717,12 +886,53 @@ body, html {
     box-shadow: -2px 0 5px rgba(0,0,0,0.05);
 }
 
+.sidebar-tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.sidebar-tab:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.sidebar-tab.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
 .inventory-container {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .property-container {
@@ -730,7 +940,6 @@ body, html {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: #fdfdfd;
 }
 
 .inventory-sidebar .sidebar-header {

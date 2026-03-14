@@ -139,6 +139,24 @@ function renderNodeProperties(node) {
                 <input type="text" id="prop-subnet" value="${node.subnet}" placeholder="255.255.255.0">
             </div>
         </div>
+        <div class="property-row">
+            <div class="property-group">
+                <label>CPU (Cores)</label>
+                <div class="prop-port-counter">
+                    <button id="btn-cpu-dec">-</button>
+                    <input type="number" id="prop-cpu" value="${node.cpu || 2}" readonly>
+                    <button id="btn-cpu-inc">+</button>
+                </div>
+            </div>
+            <div class="property-group">
+                <label>RAM (GB)</label>
+                <div class="prop-port-counter">
+                    <button id="btn-ram-dec">-</button>
+                    <input type="number" id="prop-ram" value="${node.ram || 4}" readonly>
+                    <button id="btn-ram-inc">+</button>
+                </div>
+            </div>
+        </div>
         <div class="property-group">
             <label>Port Management</label>
             <div class="prop-port-counter">
@@ -170,6 +188,23 @@ function renderNodeProperties(node) {
 
     document.getElementById('prop-subnet').oninput = (e) => {
         node.subnet = e.target.value;
+    };
+
+    document.getElementById('btn-cpu-inc').onclick = () => {
+        node.cpu = (node.cpu || 0) + 1;
+        document.getElementById('prop-cpu').value = node.cpu;
+    };
+    document.getElementById('btn-cpu-dec').onclick = () => {
+        node.cpu = Math.max(1, (node.cpu || 1) - 1);
+        document.getElementById('prop-cpu').value = node.cpu;
+    };
+    document.getElementById('btn-ram-inc').onclick = () => {
+        node.ram = (node.ram || 0) + 1;
+        document.getElementById('prop-ram').value = node.ram;
+    };
+    document.getElementById('btn-ram-dec').onclick = () => {
+        node.ram = Math.max(1, (node.ram || 1) - 1);
+        document.getElementById('prop-ram').value = node.ram;
     };
 
     renderIconGrid(node);

@@ -60,6 +60,8 @@ export function renderDrawing(draw) {
         clearSelections(); 
         drawEl.classList.add('selected');
         renderProperties(draw.id);
+        const propertiesTab = document.querySelector('.sidebar-tab[data-tab="properties"]');
+        if (propertiesTab) propertiesTab.click();
         document.addEventListener('mousemove', onMouseMove); 
         document.addEventListener('mouseup', onMouseUp);
     });
