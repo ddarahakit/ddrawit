@@ -1,0 +1,865 @@
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --danger-color: #ef4444;
+    --bg-color: #f8fafc;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #1e293b;
+    --node-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header Toolbar */
+#toolbar {
+    height: 60px;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 8px;
+    z-index: 1100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-color);
+    margin: 0 8px;
+}
+
+#toolbar .tool-btn {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #475569;
+}
+
+#toolbar .tool-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+#toolbar .tool-btn span {
+    font-size: 9px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+#toolbar .tool-btn:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+}
+
+#toolbar .tool-btn.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    border-color: #bfdbfe;
+}
+
+#toolbar .tool-btn.success {
+    color: #10b981;
+}
+#toolbar .tool-btn.success:hover { background-color: #ecfdf5; }
+
+#toolbar .tool-btn.danger {
+    color: #ef4444;
+}
+#toolbar .tool-btn.danger:hover { background-color: #fef2f2; }
+
+.simulate-btn {
+    background-color: #4f46e5 !important;
+    color: white !important;
+}
+.simulate-btn:hover { background-color: #4338ca !important; }
+
+.zoom-controls {
+    background: #f8fafc;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+#zoom-label {
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 45px;
+    text-align: center;
+    color: #64748b;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Floating Toolbox Adjustments */
+.sidebar {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 70px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 10px 0;
+}
+
+.sidebar-header {
+    display: none; /* Hide header for compact look */
+}
+
+.toolbox {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 8px;
+}
+
+.toolbox-item {
+    width: 54px;
+    height: 54px;
+    background-color: transparent;
+    border-radius: 8px;
+    text-align: center;
+    cursor: grab;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbox-item:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+}
+
+.toolbox-item i {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.toolbox-item span {
+    font-size: 9px;
+    font-weight: 500;
+}
+
+.sidebar-footer {
+    margin-top: 10px;
+    padding: 10px 8px 0;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-btn {
+    width: 54px;
+    height: 54px;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.tool-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.tool-btn.active {
+    background-color: #dbeafe;
+    color: var(--primary-color);
+}
+
+.tool-btn.danger:hover {
+    background-color: #fee2e2;
+    color: var(--danger-color);
+}
+
+/* Workspace Grid */
+.workspace {
+    flex: 1;
+    background-color: var(--bg-color);
+    position: relative;
+    overflow: hidden;
+    background-image: 
+        linear-gradient(var(--border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+.canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5000px;
+    height: 5000px;
+    transform-origin: 0 0;
+}
+
+.canvas-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.canvas-svg line {
+    stroke: #94a3b8;
+    stroke-width: 2;
+    stroke-dasharray: 4;
+}
+
+.port-label {
+    font-size: 10px;
+    fill: #334155;
+    font-weight: 700;
+    pointer-events: none;
+    user-select: none;
+    paint-order: stroke;
+    stroke: white;
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Drawing Layer & Shapes */
+.drawing-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    border: 2px solid #94a3b8;
+    background-color: rgba(148, 163, 184, 0.1);
+    pointer-events: all;
+    cursor: move;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.shape.rect { border-radius: 4px; }
+.shape.circle { border-radius: 50%; }
+.shape.diamond { transform: rotate(45deg); }
+.shape.group {
+    border-style: dashed;
+    background-color: rgba(37, 99, 235, 0.05);
+    border-color: #3b82f6;
+}
+
+.shape.selected {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+}
+
+/* Resize Handles */
+.resizer {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border: 1px solid var(--primary-color);
+    z-index: 10;
+}
+
+.resizer.tl { top: -4px; left: -4px; cursor: nw-resize; }
+.resizer.tr { top: -4px; right: -4px; cursor: ne-resize; }
+.resizer.bl { bottom: -4px; left: -4px; cursor: sw-resize; }
+.resizer.br { bottom: -4px; right: -4px; cursor: se-resize; }
+
+/* Context Menu Property Inputs */
+.menu-props {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.prop-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.prop-row input {
+    width: 60px;
+}
+
+/* Node Styles - Professional Look */
+.node {
+    position: absolute;
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.node:hover {
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+.node.selected {
+    background-color: rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.node-icon {
+    width: 64px;
+    height: 64px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #334155;
+    box-shadow: var(--shadow);
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.node-icon img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+/* Icon Selection Grid in Properties */
+.icon-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 8px;
+    background: #ffffff;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.icon-cat-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.icon-thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.icon-thumb-wrap {
+    aspect-ratio: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+}
+
+.icon-thumb-wrap:hover {
+    border-color: var(--primary-color);
+    background: #eff6ff;
+}
+
+.icon-thumb-wrap.active {
+    border-color: var(--primary-color);
+    background: #dbeafe;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.icon-thumb {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.btn-reset-icon {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    background: #f1f5f9;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.btn-reset-icon:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.node-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+    background: transparent;
+    border: none;
+    width: 100%;
+    outline: none;
+}
+
+.node-ip {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    margin-top: 2px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+}
+
+.node-labels {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Port Selection Popup (Floating) */
+.modal {
+    position: fixed;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    z-index: 2000;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.context-menu {
+    position: fixed;
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    border-radius: 8px;
+    z-index: 1000;
+    min-width: 180px;
+    padding: 4px;
+}
+
+.context-menu ul {
+    list-style: none;
+}
+
+.context-menu li {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #334155;
+}
+
+.context-menu li:hover {
+    background-color: #f1f5f9;
+}
+
+.context-menu li.danger {
+    color: var(--danger-color);
+}
+
+.menu-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 4px 0;
+}
+
+/* Node States */
+.node.started .node-icon {
+    border: 2px solid #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+.node.started .node-icon::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.node.stopped .node-icon::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Inventory Status */
+.inventory-item .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-indicator.started { background-color: #22c55e; }
+.status-indicator.stopped { background-color: #ef4444; }
+
+.inventory-item .item-header {
+    display: flex;
+    align-items: center;
+}
+
+.modal-content {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    width: 100%;
+}
+
+.modal-content h3 {
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #64748b;
+    text-align: center;
+}
+
+.port-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin: 0 0 10px 0;
+}
+
+.port-item {
+    padding: 6px;
+    font-size: 11px;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.port-item:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Configuration Modal */
+.config-group {
+    margin: 20px 0;
+}
+
+.config-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.port-counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.port-counter button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.port-counter input {
+    width: 60px;
+    height: 32px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-footer button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.modal-footer button.success {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Inventory Sidebar (Right - Split) */
+.inventory-sidebar {
+    width: 300px;
+    background-color: var(--sidebar-bg);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+}
+
+.inventory-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.property-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fdfdfd;
+}
+
+.inventory-sidebar .sidebar-header {
+    display: flex;
+    flex-direction: column;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: #f8fafc;
+}
+
+.property-editor {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.property-group {
+    margin-bottom: 20px;
+}
+
+.property-row {
+    display: flex;
+    gap: 12px;
+}
+
+.property-row .property-group {
+    flex: 1;
+}
+
+.property-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.property-group input[type="text"],
+.property-group input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.property-group input:focus {
+    border-color: var(--primary-color);
+}
+
+.property-empty {
+    padding-top: 60px;
+}
+
+/* Port Counter in Properties */
+.prop-port-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prop-port-counter button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.prop-port-counter input {
+    flex: 1;
+    text-align: center;
+}
+
+/* Existing Sidebar Styles Cleanup */
+.inventory-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inventory-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    gap: 12px;
+}
+
+.inventory-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+}
+
+.inventory-item i {
+    font-size: 18px;
+    color: #64748b;
+    width: 24px;
+    text-align: center;
+}
+
+.inventory-item .item-info {
+    flex: 1;
+}
+
+.inventory-item .item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    display: block;
+}
+
+.inventory-item .item-type {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.inventory-item.active {
+    background: #eff6ff;
+    border-color: var(--primary-color);
+}

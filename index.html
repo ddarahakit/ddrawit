@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla Architecture Designer</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Toolbar -->
+        <header id="toolbar">
+            <div class="toolbar-group">
+                <button id="tool-select" class="tool-btn active" title="Select (V)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l6 16 3-6 6-3z"></path></svg>
+                    <span>Select</span>
+                </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="tool-rect" class="tool-btn" title="Rectangle (R)">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="2"></rect></svg>
+                    <span>Rect</span>
+                </button>
+                <button id="tool-circle" class="tool-btn" title="Circle (C)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"></circle></svg>
+                    <span>Circle</span>
+                </button>
+                <button id="tool-diamond" class="tool-btn" title="Diamond (D)">
+                    <svg viewBox="0 0 24 24"><polygon points="12,3 21,12 12,21 3,12" fill="none" stroke="currentColor" stroke-width="2"></polygon></svg>
+                    <span>Diamond</span>
+                </button>
+                <button id="tool-container" class="tool-btn" title="Container / Group Box (G)">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5,3"></rect></svg>
+                    <span>Group</span>
+                </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="tool-text" class="tool-btn" title="Text (T)">
+                    <svg viewBox="0 0 24 24"><text x="6" y="18" font-size="16" font-weight="bold" fill="currentColor">T</text></svg>
+                    <span>Text</span>
+                </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="btn-save" class="tool-btn" title="Save (Ctrl+S)">
+                    <svg viewBox="0 0 24 24"><path d="M19,21H5a2,2,0,0,1-2-2V5a2,2,0,0,1,2-2H16l5,5V19A2,2,0,0,1,19,21Z" stroke="currentColor" stroke-width="2" fill="none"></path><polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2" fill="none"></polyline><polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2" fill="none"></polyline></svg>
+                    <span>Save</span>
+                </button>
+                <button id="btn-load" class="tool-btn" title="Load">
+                    <svg viewBox="0 0 24 24"><path d="M21,15v4a2,2,0,0,1-2,2H5a2,2,0,0,1-2-2V15" stroke="currentColor" stroke-width="2" fill="none"></path><polyline points="17,8 12,3 7,8" stroke="currentColor" stroke-width="2" fill="none"></polyline><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2"></line></svg>
+                    <span>Load</span>
+                </button>
+                <input type="file" id="json-load" accept=".json" style="display:none">
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="btn-export-png" class="tool-btn success" title="Export PNG">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><text x="5.5" y="17" font-size="9" font-weight="bold" fill="currentColor">PNG</text></svg>
+                    <span>PNG</span>
+                </button>
+                <button id="btn-export-json" class="tool-btn success" title="Export JSON">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect><text x="3.5" y="17" font-size="8" font-weight="bold" fill="currentColor">JSON</text></svg>
+                    <span>JSON</span>
+                </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="btn-clear-canvas" class="tool-btn danger" title="Clear All">
+                    <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" fill="none"></path></svg>
+                    <span>Clear</span>
+                </button>
+            </div>
+            <div style="flex:1"></div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group">
+                <button id="btn-simulate" class="tool-btn simulate-btn" title="Load Simulation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                    <span>Simulate</span>
+                </button>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-group zoom-controls">
+                <button id="btn-zoom-out" class="tool-btn" title="Zoom Out (-)">-</button>
+                <span id="zoom-label">100%</span>
+                <button id="btn-zoom-in" class="tool-btn" title="Zoom In (+)">+</button>
+                <button id="btn-zoom-reset" class="tool-btn" title="Reset zoom (0)">Fit</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar: Toolbox -->
+            <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Toolbox</h2>
+            </div>
+            <div class="toolbox">
+                <div class="toolbox-item" draggable="true" data-type="router">
+                    <i class="fa-solid fa-route"></i>
+                    <span>Router</span>
+                </div>
+                <div class="toolbox-item" draggable="true" data-type="switch">
+                    <i class="fa-solid fa-network-wired"></i>
+                    <span>Switch</span>
+                </div>
+                <div class="toolbox-item" draggable="true" data-type="server">
+                    <i class="fa-solid fa-server"></i>
+                    <span>Server</span>
+                </div>
+                <div class="toolbox-item" draggable="true" data-type="cloud">
+                    <i class="fa-solid fa-cloud"></i>
+                    <span>Cloud</span>
+                </div>
+                <div class="toolbox-item" draggable="true" data-type="pc">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>PC</span>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="btn-link-tool" class="tool-btn">
+                    <i class="fa-solid fa-link"></i> Link Tool
+                </button>
+                <button id="btn-clear" class="tool-btn danger">
+                    <i class="fa-solid fa-trash"></i> Clear All
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="workspace" id="workspace">
+            <div id="canvas-wrapper" class="canvas-wrapper">
+                <!-- SVG Layer for links (BEHIND nodes) -->
+                <svg id="svg-link-layer" class="canvas-svg link-layer"></svg>
+                
+                <!-- Drawing Layer for Shapes -->
+                <div id="drawing-layer" class="drawing-layer"></div>
+                
+                <!-- Node Layer -->
+                <div id="node-layer" class="node-layer"></div>
+                
+                <!-- SVG Layer for labels (ON TOP of nodes) -->
+                <svg id="svg-label-layer" class="canvas-svg label-layer"></svg>
+            </div>
+            
+            <!-- Context Menu (hidden by default) -->
+            <div id="context-menu" class="context-menu" style="display: none;">
+                <ul>
+                    <li id="menu-start"><i class="fa-solid fa-play" style="color: #22c55e;"></i> Start</li>
+                    <li id="menu-stop"><i class="fa-solid fa-stop" style="color: #ef4444;"></i> Stop</li>
+                    <li id="menu-configure"><i class="fa-solid fa-gear"></i> Configure</li>
+                    <li class="menu-divider"></li>
+                    <!-- Shape Properties (Visible only for shapes) -->
+                    <div id="shape-props" class="menu-props" style="display: none;">
+                        <div class="prop-row">
+                            <span>Color</span>
+                            <input type="color" id="prop-color" value="#94a3b8">
+                        </div>
+                        <div class="prop-row">
+                            <span>Opacity</span>
+                            <input type="range" id="prop-opacity" min="0" max="1" step="0.1" value="0.1">
+                        </div>
+                    </div>
+                    <li id="menu-delete" class="danger"><i class="fa-solid fa-trash"></i> Delete</li>
+                </ul>
+            </div>
+
+            <!-- Port Selection Modal -->
+            <div id="port-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3 id="port-modal-title">Select Port</h3>
+                    <div id="port-list" class="port-list"></div>
+                    <div id="server-port-input-wrap" style="display: none; margin-bottom: 15px;">
+                        <input type="text" id="server-app-port" class="prop-input" placeholder="e.g. 80, 443, 3306" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                        <button id="btn-confirm-server-port" class="success" style="width: 100%; background: var(--primary-color); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer;">Connect</button>
+                    </div>
+                    <button id="btn-cancel-port" style="width: 100%; margin-top: 5px;">Cancel</button>
+                </div>
+            </div>
+
+            <div id="config-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>Configure Device</h3>
+                    <div class="config-group">
+                        <label>Port Count:</label>
+                        <div class="port-counter">
+                            <button id="btn-port-dec">-</button>
+                            <input type="number" id="input-port-count" readonly>
+                            <button id="btn-port-inc">+</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-save-config" class="success">Apply</button>
+                        <button id="btn-close-config">Close</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="inventory-sidebar">
+            <!-- Top Section: Inventory -->
+            <div class="inventory-container">
+                <div class="sidebar-header">
+                    <h2>Devices</h2>
+                    <span id="device-count">0 devices</span>
+                </div>
+                <div id="inventory-list" class="inventory-list">
+                    <div class="empty-state">No devices added yet.</div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: Property Editor -->
+            <div class="property-container">
+                <div class="sidebar-header">
+                    <h2>Properties</h2>
+                </div>
+                <div id="property-editor" class="property-editor">
+                    <div class="empty-state property-empty">Select a device to edit properties.</div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Core Logic -->
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
