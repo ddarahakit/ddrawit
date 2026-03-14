@@ -229,22 +229,22 @@ function renderNodeProperties(node) {
     document.getElementById('btn-cpu-inc').onclick = () => {
         node.cpu = (node.cpu || 0) + 1;
         document.getElementById('prop-cpu').value = node.cpu;
-        renderInventory();
+        renderAll();
     };
     document.getElementById('btn-cpu-dec').onclick = () => {
         node.cpu = Math.max(1, (node.cpu || 1) - 1);
         document.getElementById('prop-cpu').value = node.cpu;
-        renderInventory();
+        renderAll();
     };
     document.getElementById('btn-ram-inc').onclick = () => {
         node.ram = (node.ram || 0) + 1;
         document.getElementById('prop-ram').value = node.ram;
-        renderInventory();
+        renderAll();
     };
     document.getElementById('btn-ram-dec').onclick = () => {
         node.ram = Math.max(1, (node.ram || 1) - 1);
         document.getElementById('prop-ram').value = node.ram;
-        renderInventory();
+        renderAll();
     };
 
     renderIconGrid(node);

@@ -5,7 +5,7 @@ import {
     portModal, serverAppPortInput, btnConfirmServerPort,
     btnLinkTool, toolButtons, zoomLabel,
     simulationModal, simTotalRps, simLbAlgo, simSpecTable,
-    simSpecTbody, simNoRoles, simStartBtn, simCancelBtn, btnSimulate
+    simSpecTbody, simNoRoles, simStartBtn, simStopBtn, simCancelBtn, btnSimulate
 } from './dom.js';
 import { createNode } from './node.js';
 import { createDrawing } from './drawing.js';
@@ -85,28 +85,37 @@ Object.keys(toolButtons).forEach(tool => {
 // --- Simulation Logic ---
 
 btnSimulate.addEventListener('click', () => {
-    const servers = state.nodes.filter(n => n.type === 'server');
-    simSpecTbody.innerHTML = '';
-    
-    if (servers.length === 0) {
-        simSpecTable.style.display = 'none';
-        simNoRoles.style.display = 'block';
+    if (state.isSimulating) {
+        // Stop Simulation directly
+        state.isSimulating = false;
+        state.nodeMetrics = {};
+        btnSimulate.classList.remove('active');
+        renderAll();
     } else {
-        simSpecTable.style.display = 'table';
-        simNoRoles.style.display = 'none';
-        servers.forEach(srv => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${srv.label}">${srv.label}</td>
-                <td>Server</td>
-                <td><input type="number" min="1" max="128" value="${srv.cpu || 4}" data-id="${srv.id}" class="sim-cpu-input"></td>
-                <td><input type="number" min="1" value="${srv.ram || 8}" data-id="${srv.id}" class="sim-ram-input"></td>
-            `;
-            simSpecTbody.appendChild(tr);
-        });
+        // Open Modal to start
+        const servers = state.nodes.filter(n => n.type === 'server' || n.type === 'loadbalancer');
+        simSpecTbody.innerHTML = '';
+        
+        if (servers.length === 0) {
+            simSpecTable.style.display = 'none';
+            simNoRoles.style.display = 'block';
+        } else {
+            simSpecTable.style.display = 'table';
+            simNoRoles.style.display = 'none';
+            servers.forEach(srv => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${srv.label}">${srv.label}</td>
+                    <td>${srv.type === 'loadbalancer' ? 'LB' : 'Server'}</td>
+                    <td><input type="number" min="1" max="128" value="${srv.cpu || (srv.type === 'loadbalancer' ? 2 : 4)}" data-id="${srv.id}" class="sim-cpu-input"></td>
+                    <td><input type="number" min="1" value="${srv.ram || (srv.type === 'loadbalancer' ? 4 : 8)}" data-id="${srv.id}" class="sim-ram-input"></td>
+                `;
+                simSpecTbody.appendChild(tr);
+            });
+        }
+        
+        simulationModal.style.display = 'flex';
     }
-    
-    simulationModal.style.display = 'flex';
 });
 
 simStartBtn.onclick = () => {
@@ -127,12 +136,17 @@ simStartBtn.onclick = () => {
     state.totalRps = rps;
     state.simulationLoad = Math.min(100, Math.round((rps / 5000) * 100)); 
     
+    btnSimulate.classList.add('active');
     simulationModal.style.display = 'none';
     renderAll();
 };
 
-simCancelBtn.onclick = () => {
+simStopBtn.onclick = () => {
+    state.isSimulating = false;
+    state.nodeMetrics = {};
+    btnSimulate.classList.remove('active');
     simulationModal.style.display = 'none';
+    renderAll();
 };
 
 // --- Link Tool ---

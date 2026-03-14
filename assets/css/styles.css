@@ -104,10 +104,19 @@ body, html {
 #toolbar .tool-btn.danger:hover { background-color: #fef2f2; }
 
 .simulate-btn {
+    background-color: white !important;
+    color: #4f46e5 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+.simulate-btn:hover { background-color: #f8fafc !important; }
+
+.simulate-btn.active {
     background-color: #4f46e5 !important;
     color: white !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
 }
-.simulate-btn:hover { background-color: #4338ca !important; }
+.simulate-btn.active:hover { background-color: #4338ca !important; }
 
 .zoom-controls {
     background: #f8fafc;

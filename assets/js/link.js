@@ -111,12 +111,23 @@ export function renderLinks(tempX = null, tempY = null) {
 
             // Calculate Metrics for the current node (Server or LB)
             if (currentNode.type === 'server' || currentNode.type === 'loadbalancer') {
-                const cpuCapacity = (currentNode.cpu || 1) * 200; // 200 RPS per core
-                const ramCapacity = (currentNode.ram || 1) * 100; // 100 RPS per GB
+                const isLB = currentNode.type === 'loadbalancer';
+                
+                // Real-world characteristic: LBs can handle much more traffic than App servers
+                const rpsPerCore = isLB ? 1000 : 200; 
+                const rpsPerGb = isLB ? 2000 : 400;
+
+                const cpuCapacity = (currentNode.cpu || 1) * rpsPerCore;
+                const ramCapacity = (currentNode.ram || 1) * rpsPerGb;
+                
+                // Add a base idle load (2-5%) to make it look alive
+                const idleCpu = 2 + (Math.random() * 3);
+                const idleRam = 5 + (Math.random() * 5);
+
                 state.nodeMetrics[currentNode.id] = {
                     rps: Math.round(nodeRps),
-                    cpuUsage: Math.min(100, Math.round((nodeRps / cpuCapacity) * 100)),
-                    ramUsage: Math.min(100, Math.round((nodeRps / ramCapacity) * 100))
+                    cpuUsage: Math.min(100, Math.round(idleCpu + (nodeRps / cpuCapacity) * 100)),
+                    ramUsage: Math.min(100, Math.round(idleRam + (nodeRps / ramCapacity) * 100))
                 };
             }
             
@@ -199,16 +210,26 @@ export function renderLinks(tempX = null, tempY = null) {
 
             // Add Moving Load Particles
             if (state.isSimulating) {
-                const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                particle.setAttribute('r', '4');
-                particle.setAttribute('fill', particleColor);
-                particle.setAttribute('class', 'load-particle');
+                const loadPercent = linkLoads.get(link.id) || 0;
+                // Calculate particle count based on load (1 to 10 particles)
+                const particleCount = Math.max(1, Math.min(10, Math.ceil(loadPercent / 10)));
                 
-                const duration = Math.max(0.5, 3 - (state.simulationLoad / 33));
-                particle.style.offsetPath = `path('M ${x1} ${y1} L ${x2} ${y2}')`;
-                particle.style.animation = `particle-flow ${duration}s linear infinite`;
-                
-                svgLinkLayer.appendChild(particle);
+                // Cap the speed: duration between 1.2s (fast) and 3.5s (slow)
+                const duration = Math.max(1.2, 3.5 - (state.simulationLoad / 40));
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    particle.setAttribute('r', '3.5');
+                    particle.setAttribute('fill', particleColor);
+                    particle.setAttribute('class', 'load-particle');
+                    
+                    particle.style.offsetPath = `path('M ${x1} ${y1} L ${x2} ${y2}')`;
+                    particle.style.animation = `particle-flow ${duration}s linear infinite`;
+                    // Stagger particles evenly along the line
+                    particle.style.animationDelay = `${-(i * (duration / particleCount))}s`;
+                    
+                    svgLinkLayer.appendChild(particle);
+                }
             }
             
             addPortLabel(x1, y1, x2, y2, link.sourcePort, 'start'); 
