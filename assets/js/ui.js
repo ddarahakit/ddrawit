@@ -95,13 +95,49 @@ export function renderInventory() {
         } else {
             iconHtml = `<i class="${getIconClass(node.type)}"></i>`;
         }
+
+        const metrics = state.nodeMetrics[node.id];
+        let metricsHtml = '';
+
+        if (node.type === 'server' || node.type === 'loadbalancer') {
+            const cpuUsage = (state.isSimulating && metrics) ? `<span class="usage ${metrics.cpuUsage >= 70 ? 'danger' : ''}">${metrics.cpuUsage}%</span>` : '';
+            const ramUsage = (state.isSimulating && metrics) ? `<span class="usage ${metrics.ramUsage >= 70 ? 'danger' : ''}">${metrics.ramUsage}%</span>` : '';
+
+            metricsHtml = `
+                <div class="inventory-metrics-box">
+                    <div class="metric-row">
+                        <span class="label">CPU</span>
+                        <span class="count">${node.cpu || 4}C</span>
+                        ${cpuUsage}
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">RAM</span>
+                        <span class="count">${node.ram || 8}G</span>
+                        ${ramUsage}
+                    </div>
+                </div>
+            `;
+        }
         
-        item.innerHTML = `<div class="item-header"><div class="status-indicator ${node.status}"></div>${iconHtml}</div><div class="item-info"><span class="item-name">${node.label}</span><span class="item-type">${node.type}</span></div>`;
+        item.innerHTML = `
+            <div class="item-header">
+                <div class="status-indicator ${node.status}"></div>
+                ${iconHtml}
+            </div>
+            <div class="item-info">
+                <span class="item-name">${node.label}</span>
+                <span class="item-type">${node.type}</span>
+            </div>
+            ${metricsHtml}
+        `;
+
         item.onclick = () => { 
             clearSelections(); 
             const nodeEl = document.getElementById(node.id);
             if (nodeEl) nodeEl.classList.add('selected'); 
             renderProperties(node.id); 
+            const propertiesTab = document.querySelector('.sidebar-tab[data-tab="properties"]');
+            if (propertiesTab) propertiesTab.click();
         };
         inventoryList.appendChild(item);
     });
@@ -193,18 +229,22 @@ function renderNodeProperties(node) {
     document.getElementById('btn-cpu-inc').onclick = () => {
         node.cpu = (node.cpu || 0) + 1;
         document.getElementById('prop-cpu').value = node.cpu;
+        renderInventory();
     };
     document.getElementById('btn-cpu-dec').onclick = () => {
         node.cpu = Math.max(1, (node.cpu || 1) - 1);
         document.getElementById('prop-cpu').value = node.cpu;
+        renderInventory();
     };
     document.getElementById('btn-ram-inc').onclick = () => {
         node.ram = (node.ram || 0) + 1;
         document.getElementById('prop-ram').value = node.ram;
+        renderInventory();
     };
     document.getElementById('btn-ram-dec').onclick = () => {
         node.ram = Math.max(1, (node.ram || 1) - 1);
         document.getElementById('prop-ram').value = node.ram;
+        renderInventory();
     };
 
     renderIconGrid(node);

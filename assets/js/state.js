@@ -12,7 +12,9 @@ export const state = {
     offset: { x: 0, y: 0, w: 0, h: 0, startX: 0, startY: 0 },
     contextTargetId: null,
     isSimulating: false,
-    simulationLoad: 50 // Default load percentage
+    simulationLoad: 50, // Default load percentage
+    totalRps: 1000,
+    nodeMetrics: {} // Stores { nodeId: { rps, cpuUsage, ramUsage } }
 };
 
 export const pendingLink = { sourceId: null, targetId: null, sourcePort: null };

@@ -90,7 +90,8 @@ export function renderLinks(tempX = null, tempY = null) {
     // Calculate Traffic Distribution if simulating
     const linkLoads = new Map();
     if (state.isSimulating) {
-        const nodeIncomingLoad = {}; // Cumulative load reaching each node
+        state.nodeMetrics = {}; // Reset metrics
+        const nodeIncomingLoad = {}; // Cumulative percentage reaching each node
         const processedNodes = new Set();
         
         // 1. Identify starting nodes (PC, Cloud, or nodes with no incoming links)
@@ -100,27 +101,37 @@ export function renderLinks(tempX = null, tempY = null) {
         // Initialize start nodes with 100% load
         startNodes.forEach(n => { nodeIncomingLoad[n.id] = 100; });
 
-        // 2. Propagate load using a queue-based approach (BFS-like)
+        // 2. Propagate load using a BFS-like approach
         const queue = [...startNodes];
         
         while (queue.length > 0) {
             const currentNode = queue.shift();
-            const currentLoad = nodeIncomingLoad[currentNode.id] || 0;
+            const currentLoadPercent = nodeIncomingLoad[currentNode.id] || 0;
+            const nodeRps = (state.totalRps * currentLoadPercent) / 100;
+
+            // Calculate Metrics for the current node (Server or LB)
+            if (currentNode.type === 'server' || currentNode.type === 'loadbalancer') {
+                const cpuCapacity = (currentNode.cpu || 1) * 200; // 200 RPS per core
+                const ramCapacity = (currentNode.ram || 1) * 100; // 100 RPS per GB
+                state.nodeMetrics[currentNode.id] = {
+                    rps: Math.round(nodeRps),
+                    cpuUsage: Math.min(100, Math.round((nodeRps / cpuCapacity) * 100)),
+                    ramUsage: Math.min(100, Math.round((nodeRps / ramCapacity) * 100))
+                };
+            }
             
             // Find all links outgoing from this node
             const outgoingLinks = state.links.filter(l => l.sourceId === currentNode.id);
             
             if (outgoingLinks.length > 0) {
-                const distributedLoad = currentLoad / outgoingLinks.length;
+                const distributedPercent = currentLoadPercent / outgoingLinks.length;
                 
                 outgoingLinks.forEach(link => {
-                    linkLoads.set(link.id, Math.round(distributedLoad));
+                    linkLoads.set(link.id, Math.round(distributedPercent));
                     
-                    // Add load to target node
                     if (!nodeIncomingLoad[link.targetId]) nodeIncomingLoad[link.targetId] = 0;
-                    nodeIncomingLoad[link.targetId] += distributedLoad;
+                    nodeIncomingLoad[link.targetId] += distributedPercent;
                     
-                    // Only add to queue if not processed to avoid cycles (simple guard)
                     if (!processedNodes.has(link.targetId)) {
                         const targetNode = state.nodes.find(n => n.id === link.targetId);
                         if (targetNode && !queue.includes(targetNode)) {
@@ -144,14 +155,33 @@ export function renderLinks(tempX = null, tempY = null) {
             
             // Simulation Load Styling
             let strokeColor = '#94a3b8';
+            let particleColor = 'white';
+
             if (state.isSimulating) {
-                const load = state.simulationLoad;
-                if (load > 80) strokeColor = '#ef4444'; // Critical (Red)
-                else if (load > 40) strokeColor = '#f59e0b'; // Medium (Orange)
-                else strokeColor = '#22c55e'; // Low (Green)
+                const targetMetrics = state.nodeMetrics[link.targetId];
+                
+                if (targetMetrics) {
+                    const maxUsage = Math.max(targetMetrics.cpuUsage, targetMetrics.ramUsage);
+                    
+                    if (maxUsage >= 70) {
+                        strokeColor = '#ef4444'; // Red for overloaded target
+                        particleColor = '#ef4444'; // Red particles
+                    } else if (maxUsage >= 40) {
+                        strokeColor = '#f59e0b'; // Amber for medium load
+                        particleColor = 'white';
+                    } else {
+                        strokeColor = '#22c55e'; // Green for healthy load
+                        particleColor = 'white';
+                    }
+                } else {
+                    // Default simulation color for links to non-resource nodes (Switch, etc)
+                    strokeColor = '#3b82f6';
+                    particleColor = 'white';
+                }
                 
                 line.setAttribute('class', 'simulating-link');
                 line.style.strokeDasharray = '8 4';
+                const load = state.simulationLoad;
                 line.style.animation = `dash-flow ${Math.max(0.1, 2 - (load/50))}s linear infinite`;
 
                 // Add Traffic Percentage Label in the middle
@@ -170,8 +200,8 @@ export function renderLinks(tempX = null, tempY = null) {
             // Add Moving Load Particles
             if (state.isSimulating) {
                 const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                particle.setAttribute('r', '3');
-                particle.setAttribute('fill', 'white');
+                particle.setAttribute('r', '4');
+                particle.setAttribute('fill', particleColor);
                 particle.setAttribute('class', 'load-particle');
                 
                 const duration = Math.max(0.5, 3 - (state.simulationLoad / 33));
@@ -186,7 +216,6 @@ export function renderLinks(tempX = null, tempY = null) {
             addPortLabel(x2, y2, x1, y1, link.targetPort, 'end', labelColor);
         }
     });
-    // ... rest of the code
 
     // Draw pending link line if source is selected
     if (pendingLink.sourceId) {
@@ -195,7 +224,6 @@ export function renderLinks(tempX = null, tempY = null) {
             const x1 = s.x + 50, y1 = s.y + 42;
             let x2 = tempX, y2 = tempY;
 
-            // If target is already selected (e.g., showing server port modal), lock to target
             if (pendingLink.targetId) {
                 const t = state.nodes.find(n => n.id === pendingLink.targetId);
                 if (t) {

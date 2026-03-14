@@ -124,6 +124,7 @@ simStartBtn.onclick = () => {
 
     state.isSimulating = true;
     const rps = parseInt(simTotalRps.value);
+    state.totalRps = rps;
     state.simulationLoad = Math.min(100, Math.round((rps / 5000) * 100)); 
     
     simulationModal.style.display = 'none';

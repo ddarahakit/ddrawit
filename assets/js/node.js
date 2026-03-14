@@ -41,11 +41,29 @@ export function renderNode(node) {
 
     nodeEl.innerHTML = `
         <div class="node-icon">${iconHtml}</div>
+        <div class="node-usage-container"></div>
         <div class="node-labels">
             <input type="text" class="node-label" value="${node.label}">
             <div class="node-ip">${node.ip || 'No IP'}</div>
         </div>
     `;
+
+    if (state.isSimulating) {
+        const metrics = state.nodeMetrics[node.id];
+        if (metrics && (node.type === 'server' || node.type === 'loadbalancer')) {
+            const usageContainer = nodeEl.querySelector('.node-usage-container');
+            usageContainer.innerHTML = `
+                <div class="usage-bar-wrap">
+                    <div class="usage-label">CPU ${metrics.cpuUsage}%</div>
+                    <div class="usage-bar"><div class="usage-fill ${metrics.cpuUsage >= 70 ? 'danger' : ''}" style="width: ${metrics.cpuUsage}%"></div></div>
+                </div>
+                <div class="usage-bar-wrap">
+                    <div class="usage-label">RAM ${metrics.ramUsage}%</div>
+                    <div class="usage-bar"><div class="usage-fill ${metrics.ramUsage >= 70 ? 'danger' : ''}" style="width: ${metrics.ramUsage}%"></div></div>
+                </div>
+            `;
+        }
+    }
 
     nodeEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || e.target.tagName === 'INPUT') return;
