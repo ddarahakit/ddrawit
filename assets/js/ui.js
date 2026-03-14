@@ -107,14 +107,23 @@ export function renderInventory() {
     });
 }
 
-export function renderProperties(nodeId) {
-    if (!nodeId) { 
-        propertyEditor.innerHTML = '<div class="empty-state property-empty">Select a device to edit properties.</div>'; 
+export function renderProperties(id) {
+    if (!id) { 
+        propertyEditor.innerHTML = '<div class="empty-state property-empty">Select an item to edit properties.</div>'; 
         return; 
     }
-    const node = state.nodes.find(n => n.id === nodeId);
-    if (!node) return;
 
+    const node = state.nodes.find(n => n.id === id);
+    const draw = state.drawings.find(d => d.id === id);
+
+    if (node) {
+        renderNodeProperties(node);
+    } else if (draw) {
+        renderShapeProperties(draw);
+    }
+}
+
+function renderNodeProperties(node) {
     propertyEditor.innerHTML = `
         <div class="property-group">
             <label>Hostname</label>
@@ -165,6 +174,106 @@ export function renderProperties(nodeId) {
 
     renderIconGrid(node);
 }
+
+function renderShapeProperties(draw) {
+    propertyEditor.innerHTML = `
+        <div class="property-group">
+            <label>Shape Text</label>
+            <textarea id="prop-shape-text" style="width: 100%; height: 60px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">${draw.text || ''}</textarea>
+        </div>
+        <div class="property-row">
+            <div class="property-group">
+                <label>Color</label>
+                <input type="color" id="prop-shape-color" value="${draw.color}" style="width: 100%; height: 32px; padding: 2px;">
+            </div>
+            <div class="property-group">
+                <label>Opacity</label>
+                <input type="range" id="prop-shape-opacity" min="0" max="1" step="0.1" value="${draw.opacity}" style="width: 100%;">
+            </div>
+        </div>
+        <div class="property-row">
+            <div class="property-group">
+                <label>Border Style</label>
+                <select id="prop-shape-border" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <option value="solid" ${draw.borderStyle === 'solid' ? 'selected' : ''}>Solid</option>
+                    <option value="dashed" ${draw.borderStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+                    <option value="dotted" ${draw.borderStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+                    <option value="double" ${draw.borderStyle === 'double' ? 'selected' : ''}>Double</option>
+                </select>
+            </div>
+            <div class="property-group">
+                <label>Z-Index</label>
+                <div class="prop-port-counter">
+                    <button id="btn-z-dec">-</button>
+                    <input type="number" id="prop-shape-z" value="${draw.zIndex}" readonly>
+                    <button id="btn-z-inc">+</button>
+                </div>
+            </div>
+        </div>
+        <div class="property-row">
+            <div class="property-group">
+                <label>Align</label>
+                <select id="prop-shape-align" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <option value="left" ${draw.textAlign === 'left' ? 'selected' : ''}>Left</option>
+                    <option value="center" ${draw.textAlign === 'center' ? 'selected' : ''}>Center</option>
+                    <option value="right" ${draw.textAlign === 'right' ? 'selected' : ''}>Right</option>
+                </select>
+            </div>
+            <div class="property-group">
+                <label>Baseline</label>
+                <select id="prop-shape-baseline" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    <option value="top" ${draw.textBaseline === 'top' ? 'selected' : ''}>Top</option>
+                    <option value="middle" ${draw.textBaseline === 'middle' ? 'selected' : ''}>Middle</option>
+                    <option value="bottom" ${draw.textBaseline === 'bottom' ? 'selected' : ''}>Bottom</option>
+                </select>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('prop-shape-text').oninput = (e) => {
+        draw.text = e.target.value;
+        const el = document.getElementById(draw.id);
+        if (el) el.querySelector('.shape-text').textContent = draw.text;
+    };
+
+    document.getElementById('prop-shape-color').oninput = (e) => {
+        draw.color = e.target.value;
+        renderAll();
+    };
+
+    document.getElementById('prop-shape-opacity').oninput = (e) => {
+        draw.opacity = e.target.value;
+        renderAll();
+    };
+
+    document.getElementById('prop-shape-border').onchange = (e) => {
+        draw.borderStyle = e.target.value;
+        renderAll();
+    };
+
+    document.getElementById('btn-z-inc').onclick = () => {
+        draw.zIndex++;
+        document.getElementById('prop-shape-z').value = draw.zIndex;
+        renderAll();
+    };
+
+    document.getElementById('btn-z-dec').onclick = () => {
+        draw.zIndex = Math.max(1, draw.zIndex - 1);
+        document.getElementById('prop-shape-z').value = draw.zIndex;
+        renderAll();
+    };
+
+    document.getElementById('prop-shape-align').onchange = (e) => {
+        draw.textAlign = e.target.value;
+        renderAll();
+    };
+
+    document.getElementById('prop-shape-baseline').onchange = (e) => {
+        draw.textBaseline = e.target.value;
+        renderAll();
+    };
+}
+
 
 export function renderIconGrid(node) {
     const container = document.getElementById('icon-grid-container');

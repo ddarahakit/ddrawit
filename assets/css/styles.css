@@ -291,17 +291,25 @@ body, html {
     pointer-events: all;
     cursor: move;
     display: flex;
-    align-items: center;
-    justify-content: center;
     min-width: 20px;
     min-height: 20px;
+    transition: outline 0.2s;
+    border-radius: 12px;
+}
+
+.shape-text {
+    pointer-events: none;
+    user-select: none;
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
 }
 
 .shape.rect { border-radius: 4px; }
 .shape.circle { border-radius: 50%; }
 .shape.diamond { transform: rotate(45deg); }
+.shape.diamond .shape-text { transform: rotate(-45deg); }
 .shape.group {
-    border-style: dashed;
     background-color: rgba(37, 99, 235, 0.05);
     border-color: #3b82f6;
 }
@@ -319,6 +327,11 @@ body, html {
     background: white;
     border: 1px solid var(--primary-color);
     z-index: 10;
+    display: none;
+}
+
+.shape.selected .resizer {
+    display: block;
 }
 
 .resizer.tl { top: -4px; left: -4px; cursor: nw-resize; }

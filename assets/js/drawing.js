@@ -12,7 +12,12 @@ export function createDrawing(type, x, y) {
         w: 200, 
         h: 200, 
         color: '#94a3b8', 
-        opacity: 0.1 
+        opacity: 0.1,
+        zIndex: state.drawings.length + 1,
+        borderStyle: 'solid',
+        text: '',
+        textAlign: 'center',
+        textBaseline: 'middle'
     };
     state.drawings.push(drawing); 
     renderDrawing(drawing);
@@ -22,7 +27,21 @@ export function renderDrawing(draw) {
     const drawEl = document.createElement('div');
     drawEl.className = `shape ${draw.type}`;
     drawEl.id = draw.id;
-    drawEl.style.cssText = `left: ${draw.x}px; top: ${draw.y}px; width: ${draw.w}px; height: ${draw.h}px; border-color: ${draw.color}; background-color: ${hexToRgba(draw.color, draw.opacity)}`;
+    drawEl.style.cssText = `
+        left: ${draw.x}px; 
+        top: ${draw.y}px; 
+        width: ${draw.w}px; 
+        height: ${draw.h}px; 
+        border-color: ${draw.color}; 
+        border-style: ${draw.borderStyle};
+        background-color: ${hexToRgba(draw.color, draw.opacity)};
+        z-index: ${draw.zIndex};
+        display: flex;
+        align-items: ${draw.textBaseline === 'middle' ? 'center' : (draw.textBaseline === 'top' ? 'flex-start' : 'flex-end')};
+        justify-content: ${draw.textAlign === 'center' ? 'center' : (draw.textAlign === 'left' ? 'flex-start' : 'flex-end')};
+    `;
+
+    drawEl.innerHTML = `<div class="shape-text" style="padding: 10px; pointer-events: none; word-break: break-all;">${draw.text}</div>`;
 
     ['tl', 'tr', 'bl', 'br'].forEach(dir => {
         const handle = document.createElement('div');
@@ -40,7 +59,7 @@ export function renderDrawing(draw) {
         state.offset.y = e.clientY / state.zoom - draw.y;
         clearSelections(); 
         drawEl.classList.add('selected');
-        renderProperties(null);
+        renderProperties(draw.id);
         document.addEventListener('mousemove', onMouseMove); 
         document.addEventListener('mouseup', onMouseUp);
     });
