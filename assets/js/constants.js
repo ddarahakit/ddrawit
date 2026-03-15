@@ -11,3 +11,42 @@ export const ICON_LIST = [
     { category: '기타', icons: ['물음표 - 그림자 없는거.png', '물음표 - 빨간색.png', '주사기.png'] },
     { category: '캐릭터', icons: ['캐릭터 - 개발.png', '캐릭터 - 개발 행복.png', '캐릭터 - 개발 고민.png', '캐릭터 - 돋보기.png', '캐릭터 - 돋보기2.png', '캐릭터 - 에러 놀람.png'] }
 ];
+
+export const ROLE_CONFIG = {
+    web: {
+        label: 'Web Server',
+        cpuWeight: 1.2,
+        ramWeight: 0.5,
+        color: '#3b82f6' // Blue
+    },
+    was: {
+        label: 'App Server (WAS)',
+        cpuWeight: 1.5,
+        ramWeight: 1.0,
+        color: '#8b5cf6' // Violet
+    },
+    db: {
+        label: 'DB Server',
+        cpuWeight: 1.0,
+        ramWeight: 2.0,
+        color: '#f59e0b' // Amber
+    },
+    cache: {
+        label: 'Cache (Redis)',
+        cpuWeight: 0.5,
+        ramWeight: 2.5,
+        color: '#ec4899' // Pink
+    },
+    lb: {
+        label: 'Load Balancer',
+        cpuWeight: 0.2,
+        ramWeight: 0.3,
+        color: '#10b981' // Emerald
+    },
+    general: {
+        label: 'General Server',
+        cpuWeight: 1.0,
+        ramWeight: 1.0,
+        color: '#64748b' // Slate
+    }
+};

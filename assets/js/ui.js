@@ -1,5 +1,5 @@
 import { state, resetPendingLinkState } from './state.js';
-import { ICON_LIST } from './constants.js';
+import { ICON_LIST, ROLE_CONFIG } from './constants.js';
 import { 
     canvasWrapper, zoomLabel, toolButtons, btnLinkTool, workspace, 
     inventoryList, deviceCount, propertyEditor, nodeLayer, drawingLayer 
@@ -160,11 +160,28 @@ export function renderProperties(id) {
 }
 
 function renderNodeProperties(node) {
+    const isServerLike = node.type === 'server' || node.type === 'loadbalancer';
+    
+    let roleSelectHtml = '';
+    if (isServerLike) {
+        roleSelectHtml = `
+            <div class="property-group">
+                <label>Server Role</label>
+                <select id="prop-role" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                    ${Object.entries(ROLE_CONFIG).map(([key, cfg]) => 
+                        `<option value="${key}" ${node.role === key ? 'selected' : ''}>${cfg.label}</option>`
+                    ).join('')}
+                </select>
+            </div>
+        `;
+    }
+
     propertyEditor.innerHTML = `
         <div class="property-group">
             <label>Hostname</label>
             <input type="text" id="prop-hostname" value="${node.label}">
         </div>
+        ${roleSelectHtml}
         <div class="property-row">
             <div class="property-group">
                 <label>IP Address</label>
@@ -206,6 +223,14 @@ function renderNodeProperties(node) {
             <div id="icon-grid-container" class="icon-grid-container"></div>
         </div>
     `;
+
+    if (isServerLike) {
+        document.getElementById('prop-role').onchange = (e) => {
+            node.role = e.target.value;
+            renderAll();
+            renderProperties(node.id);
+        };
+    }
 
     document.getElementById('prop-hostname').oninput = (e) => {
         node.label = e.target.value;

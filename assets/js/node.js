@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { ICON_LIST, ROLE_CONFIG } from './constants.js';
 import { nodeLayer, contextMenu, shapeProps } from './dom.js';
 import { getInitialPorts, getIconClass } from './utils.js';
 import { renderInventory, renderProperties, clearSelections, onMouseMove, onMouseUp } from './ui.js';
@@ -18,7 +19,8 @@ export function createNode(type, x, y) {
         status: 'stopped',
         customIcon: null,
         cpu: type === 'server' ? 4 : 2, // Default CPU cores
-        ram: type === 'server' ? 8 : 4  // Default RAM GB
+        ram: type === 'server' ? 8 : 4,  // Default RAM GB
+        role: type === 'loadbalancer' ? 'lb' : (type === 'server' ? 'general' : null)
     };
     state.nodes.push(node); 
     renderNode(node); 
@@ -32,6 +34,10 @@ export function renderNode(node) {
     nodeEl.style.left = node.x + 'px';
     nodeEl.style.top = node.y + 'px';
 
+    if (node.role && ROLE_CONFIG[node.role]) {
+        nodeEl.style.borderColor = ROLE_CONFIG[node.role].color;
+    }
+
     let iconHtml = '';
     if (node.customIcon) {
         iconHtml = `<img src="assets/icons/${encodeURIComponent(node.customIcon)}" alt="${node.type}" draggable="false">`;
@@ -39,8 +45,13 @@ export function renderNode(node) {
         iconHtml = `<i class="${getIconClass(node.type)}"></i>`;
     }
 
+    const roleBadge = (node.role && ROLE_CONFIG[node.role]) ? `<div class="role-badge" style="background: ${ROLE_CONFIG[node.role].color}">${ROLE_CONFIG[node.role].label}</div>` : '';
+
     nodeEl.innerHTML = `
-        <div class="node-icon">${iconHtml}</div>
+        <div class="node-icon">
+            ${iconHtml}
+            ${roleBadge}
+        </div>
         <div class="node-usage-container"></div>
         <div class="node-labels">
             <input type="text" class="node-label" value="${node.label}">
