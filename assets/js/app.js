@@ -149,6 +149,16 @@ simStopBtn.onclick = () => {
     renderAll();
 };
 
+simCancelBtn.onclick = () => {
+    simulationModal.style.display = 'none';
+};
+
+simulationModal.onclick = (e) => {
+    if (e.target === simulationModal) {
+        simulationModal.style.display = 'none';
+    }
+};
+
 // --- Link Tool ---
 
 btnLinkTool.addEventListener('click', (e) => {
